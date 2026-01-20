@@ -2,7 +2,6 @@ import streamlit as st
 import time
 import pandas as pd
 from datetime import datetime
-from streamlit_gsheets import GSheetsConnection
 
 # --- CONFIGURATION & THEME ---
 st.set_page_config(
@@ -87,16 +86,17 @@ if 'mental_load' not in st.session_state:
     st.session_state.mental_load = 20
 
 # --- DATA PERSISTENCE ---
-
 def save_user_to_sheets(user_data):
     """Saves user profile information to the configured Google Sheet."""
     try:
-        conn = st.connection("gsheets", type=GSheetsConnection)
-        # Read existing data to append
+        conn = st.connection("gsheets", type="gsheets")
+
         existing_data = conn.read(worksheet="users", ttl=0)
         new_row = pd.DataFrame([user_data])
+
         updated_df = pd.concat([existing_data, new_row], ignore_index=True)
         conn.update(worksheet="users", data=updated_df)
+
         return True
     except Exception as e:
         st.error("Technical connection issue. Data saved locally for this session only.")
